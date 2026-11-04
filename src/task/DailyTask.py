@@ -95,9 +95,6 @@ class DailyTask(WWOneTimeTask, BaseCombatTask):
 
         if need_nightmare:
             try:
-                # 劫持 NightmareNestTask.ensure_main 避免梦魇打完关书
-                self.get_task_by_class(NightmareNestTask).ensure_main = lambda *args, **kwargs: None
-
                 if condition1:
                     self.log_debug('Auto Farm all Nightmare Nest')
                     self.run_task_by_class(NightmareNestTask)
@@ -109,10 +106,8 @@ class DailyTask(WWOneTimeTask, BaseCombatTask):
             except Exception as e:
                 self.log_error("NightmareNestTask Failed", e)
                 self.screenshot('NightmareNestTask')
-                self.ensure_main(time_out=180)
             finally:
-                # 还原 ensure_main，防范实例状态污染
-                self.get_task_by_class(NightmareNestTask).__dict__.pop('ensure_main', None)
+                self.ensure_main(time_out=180)
 
         if need_stamina:
             target = self.config.get('Which to Farm', self.support_tasks[0])

@@ -18,36 +18,16 @@ class MergeEchoTask(BaseWWTask):
         self.notify_if_not_enough = True
 
     def run(self):
-        self.ensure_main()
-        hotkey = self.key_config.get("Bag Key", "b")
-        self.send_key(hotkey)
-        if not self.wait_until(
-                lambda: not self.in_team_and_world(),
-                time_out=5,
-                raise_if_not_found=False,
+        while self.ocr(
+            0,
+            0.83,
+            0.07,
+            0.9,
+            match="已弃置",
         ):
-            self.log_error(
-                f"can not open bag with hotkey {hotkey}",
-                notify=True,
-            )
-            return
-        self.sleep(3)
-
-        if self.has_discard_merge_dialog():
-            self.click_dialog_left_button()
-            self.sleep(2)
-            self.click_relative(0.034, 0.293, after_sleep=1)
-            self.click_relative(0.580, 0.911, after_sleep=4)
-        else:
-            if self.notify_if_not_enough:
-                self.log_error(
-                    "Must have 1000 discarded Echo to Run",
-                    notify=True,
-                )
-            self.ensure_main()
-            return
-
-        self.merge_echoes()
+            print("Found discarded Echoes, merging...")
+            self.merge_full_batch()
+        print("Not filtering for discarded Echoes")
 
     def has_discard_merge_dialog(self):
         return bool(self.find_one([
